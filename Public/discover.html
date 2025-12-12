@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover – SwapLearn</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f4f6fa;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .discover-card {
+            border-radius: 14px;
+            border: 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            transition: 0.2s ease;
+        }
+
+        .discover-card:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV BAR -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">SwapLearn</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-semibold" href="discover.html">Discover</a></li>
+                    <li class="nav-item"><a class="nav-link" href="match.html">Matches</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE TITLE -->
+    <div class="container text-center mt-5">
+        <h1 class="fw-bold">Discover Skills</h1>
+        <p class="text-muted">Explore what people want to learn and what they can teach</p>
+    </div>
+
+    <!-- NEED SECTION -->
+    <div class="container mt-5">
+        <h3 class="section-title">📘 Skills Users NEED</h3>
+        <div id="needContainer" class="row g-3"></div>
+    </div>
+
+    <!-- TEACH SECTION -->
+    <div class="container mt-5">
+        <h3 class="section-title">🎓 Skills Users TEACH</h3>
+        <div id="teachContainer" class="row g-3"></div>
+    </div>
+
+    <!-- ALL SKILLS SECTION -->
+    <div class="container mt-5 pb-5">
+        <h3 class="section-title">🌐 All Skills</h3>
+        <div id="allSkillsContainer" class="row g-3"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- FETCH LOGIC -->
+    <script>
+        // NEED SECTION
+        fetch("http://localhost:5000/api/discover/need")
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("needContainer");
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-muted">No skills found</p>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    container.innerHTML += `
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card discover-card p-3">
+                            <h5 class="fw-bold">${item.skill_name}</h5>
+                            <p class="text-muted mb-1"><strong>User:</strong> ${item.username}</p>
+                            <span class="badge bg-primary">Needs</span>
+                        </div>
+                    </div>
+                    `;
+                });
+            });
+
+        // TEACH SECTION
+        fetch("http://localhost:5000/api/discover/teach")
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("teachContainer");
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-muted">No skills found</p>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    container.innerHTML += `
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card discover-card p-3">
+                            <h5 class="fw-bold">${item.skill_name}</h5>
+                            <p class="text-muted mb-1"><strong>User:</strong> ${item.username}</p>
+                            <span class="badge bg-success">Teaches</span>
+                        </div>
+                    </div>
+                    `;
+                });
+            });
+
+        // ALL SKILLS SECTION
+        fetch("http://localhost:5000/api/skills")
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("allSkillsContainer");
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-muted">No skills available</p>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    container.innerHTML += `
+                    <div class="col-md-3">
+                        <div class="card discover-card p-3 text-center">
+                            <h5 class="fw-bold">${item.skill_name}</h5>
+                        </div>
+                    </div>
+                    `;
+                });
+            });
+    </script>
+
+</body>
+
+</html>

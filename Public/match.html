@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutual Matches – SwapLearn</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fb;
+        }
+
+        .match-card {
+            border: 0;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            transition: 0.2s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .swap-icon {
+            font-size: 32px;
+            color: #4f46e5;
+        }
+
+        .no-match {
+            padding: 30px;
+            text-align: center;
+            color: #444;
+            font-size: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV BAR (SAME AS INDEX FOR CONTINUITY) -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">SwapLearn</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="discover.html">Discover</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-semibold" href="match.html">Matches</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE TITLE -->
+    <div class="container text-center mt-5">
+        <h1 class="fw-bold">Mutual Skill Matches</h1>
+        <p class="text-muted">People who can teach each other their desired skills</p>
+    </div>
+
+    <!-- MATCHES SECTION -->
+    <div class="container mt-4">
+        <div id="matchContainer" class="row g-4"></div>
+    </div>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JS Fetch API -->
+    <script>
+        fetch("http://localhost:5000/api/match/mutual")
+            .then(res => res.json())
+            .then(matches => {
+                const container = document.getElementById("matchContainer");
+
+                if (matches.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12">
+                            <div class="no-match">❌ No mutual matches found yet</div>
+                        </div>`;
+                    return;
+                }
+
+                matches.forEach(match => {
+                    const html = `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card match-card p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4>${match.userA}</h4>
+                                <div class="swap-icon">⇄</div>
+                                <h4>${match.userB}</h4>
+                            </div>
+
+                            <hr>
+
+                            <p class="mb-1">
+                                <strong>${match.userA}</strong> needs  
+                                <span class="text-primary fw-semibold">${match.skill_needed_by_A_taught_by_B}</span>
+                            </p>
+
+                            <p class="mb-3">
+                                <strong>${match.userB}</strong> needs 
+                                <span class="text-success fw-semibold">${match.skill_needed_by_B_taught_by_A}</span>
+                            </p>
+
+                            <div class="text-end">
+                                <button class="btn btn-outline-primary btn-sm">Start Swap</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    container.innerHTML += html;
+                });
+            })
+            .catch(err => console.error("Error loading matches:", err));
+    </script>
+
+</body>
+</html>

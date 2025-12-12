@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Skill – SwapLearn</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6fa;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .form-card {
+            max-width: 550px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">SwapLearn</a>
+
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="discover.html">Discover</a></li>
+                    <li class="nav-item"><a class="nav-link" href="match.html">Matches</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- FORM -->
+    <div class="container mt-5">
+        <div class="form-card">
+
+            <h2 class="fw-bold text-center mb-4">Add Your Skill</h2>
+
+            <label class="form-label">Select Skill</label>
+            <select id="skillSelect" class="form-select mb-3">
+                <option value="">Loading skills...</option>
+            </select>
+
+            <label class="form-label">Choose Type</label>
+            <select id="typeSelect" class="form-select mb-4">
+                <option value="">Choose one</option>
+                <option value="need">I NEED this skill</option>
+                <option value="teach">I can TEACH this skill</option>
+            </select>
+
+            <button class="btn btn-primary w-100" onclick="submitSkill()">Save Skill</button>
+
+            <p id="statusMsg" class="mt-3 text-center fw-semibold"></p>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        const USER_ID = 1; // Default for now
+
+        // Load skills into dropdown
+        fetch("http://localhost:5000/api/skills")
+            .then(res => res.json())
+            .then(skills => {
+                const dropdown = document.getElementById("skillSelect");
+                dropdown.innerHTML = `<option value="">Select a skill</option>`;
+
+                skills.forEach(s => {
+                    dropdown.innerHTML += `<option value="${s.skill_id}">${s.skill_name}</option>`;
+                });
+            });
+
+        // Submit Skill
+        function submitSkill() {
+            const skillId = document.getElementById("skillSelect").value;
+            const type = document.getElementById("typeSelect").value;
+            const msg = document.getElementById("statusMsg");
+
+            if (!skillId || !type) {
+                msg.innerHTML = "<span class='text-danger'>Please fill all fields</span>";
+                return;
+            }
+
+            const payload = {
+                user_id: USER_ID,
+                skill_id: skillId
+            };
+
+            const url = type === "need" 
+                ? "http://localhost:5000/api/add-need"
+                : "http://localhost:5000/api/add-teach";
+
+            fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    msg.innerHTML = `<span class='text-success'>${data.message}</span>`;
+                })
+                .catch(err => {
+                    msg.innerHTML = "<span class='text-danger'>Error adding skill</span>";
+                });
+        }
+
+    </script>
+
+</body>
+
+</html>
