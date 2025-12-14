@@ -1,4 +1,7 @@
+// Load environment variables
 require("dotenv").config();
+
+// Imports
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -7,34 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-//add need skill
-app.post("/api/add-need", (req, res) => {
-    const { user_id, skill_id } = req.body;
-
-    const sql = "INSERT INTO user_skills_need (user_id, skill_id) VALUES (?, ?)";
-    db.query(sql, [user_id, skill_id], (err, result) => {
-        if (err) return res.status(500).send({ error: err });
-        res.send({ message: "Need skill added successfully" });
-    });
-});
-
-//add teach skill
-app.post("/api/add-teach", (req, res) => {
-    const { user_id, skill_id } = req.body;
-
-    const sql = "INSERT INTO user_skills_teach (user_id, skill_id) VALUES (?, ?)";
-    db.query(sql, [user_id, skill_id], (err, result) => {
-        if (err) return res.status(500).send({ error: err });
-        res.send({ message: "Teach skill added successfully" });
-    });
-});
-
-
-
+// -----------------------------------------
+// STATIC FILES
+// -----------------------------------------
 app.use(express.static("Public"));
 
-
-// Database connection
+// -----------------------------------------
+// DATABASE CONNECTION
+// -----------------------------------------
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -43,14 +26,50 @@ const db = mysql.createPool({
   port: process.env.DB_PORT,
 });
 
+// Test DB connection (Railway needs this)
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error("❌ Database connection failed:", err);
+  } else {
+    console.log("✅ Database connected successfully");
+    connection.release();
+  }
+});
 
-// Test connection API
+// -----------------------------------------
+// HEALTH CHECK ROUTE (IMPORTANT FOR RAILWAY)
+// -----------------------------------------
 app.get("/", (req, res) => {
   res.send("Backend is running successfully 🚀");
 });
 
+// -----------------------------------------
+// API ROUTES
+// -----------------------------------------
 
-// Get all users
+// Add Need Skill
+app.post("/api/add-need", (req, res) => {
+  const { user_id, skill_id } = req.body;
+
+  const sql = "INSERT INTO user_skills_need (user_id, skill_id) VALUES (?, ?)";
+  db.query(sql, [user_id, skill_id], (err, result) => {
+    if (err) return res.status(500).send({ error: err });
+    res.send({ message: "Need skill added successfully" });
+  });
+});
+
+// Add Teach Skill
+app.post("/api/add-teach", (req, res) => {
+  const { user_id, skill_id } = req.body;
+
+  const sql = "INSERT INTO user_skills_teach (user_id, skill_id) VALUES (?, ?)";
+  db.query(sql, [user_id, skill_id], (err, result) => {
+    if (err) return res.status(500).send({ error: err });
+    res.send({ message: "Teach skill added successfully" });
+  });
+});
+
+// Get All Users
 app.get("/api/users", (req, res) => {
   db.query("SELECT * FROM users", (err, result) => {
     if (err) return res.status(500).send(err);
@@ -58,14 +77,7 @@ app.get("/api/users", (req, res) => {
   });
 });
 
-// Start server
-const port = process.env.PORT || 5000;
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server running on port", process.env.PORT || 3000);
-});
-
-
-// get all skills
+// Get All Skills
 app.get("/api/skills", (req, res) => {
   db.query("SELECT * FROM skills", (err, result) => {
     if (err) return res.status(500).send(err);
@@ -73,7 +85,7 @@ app.get("/api/skills", (req, res) => {
   });
 });
 
-// discover skills what users need
+// Discover — Users Needing Skills
 app.get("/api/discover/need", (req, res) => {
   const sql = `
       SELECT u.username, s.skill_name
@@ -87,7 +99,7 @@ app.get("/api/discover/need", (req, res) => {
   });
 });
 
-//skills users can teach
+// Discover — Users Teaching Skills
 app.get("/api/discover/teach", (req, res) => {
   const sql = `
       SELECT u.username, s.skill_name
@@ -101,7 +113,7 @@ app.get("/api/discover/teach", (req, res) => {
   });
 });
 
-//matching logics
+// Match — Who Can Teach the Current User
 app.get("/api/match/can-teach/:userId", (req, res) => {
   const userId = req.params.userId;
 
@@ -121,7 +133,7 @@ app.get("/api/match/can-teach/:userId", (req, res) => {
   });
 });
 
-//mutual matching
+// Mutual Skill Matching
 app.get("/api/match/mutual", (req, res) => {
   const sql = `
     SELECT 
@@ -146,13 +158,11 @@ app.get("/api/match/mutual", (req, res) => {
   });
 });
 
-// Test DB connection
-db.getConnection((err, connection) => {
-  if (err) {
-    console.error("❌ Database connection failed:", err);
-  } else {
-    console.log("✅ Database connected successfully");
-    connection.release();
-  }
-});
+// -----------------------------------------
+// START SERVER
+// -----------------------------------------
+const PORT = process.env.PORT || 3000;
 
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
