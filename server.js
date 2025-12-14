@@ -40,6 +40,7 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 });
 
 // Test connection API
@@ -56,9 +57,11 @@ app.get("/api/users", (req, res) => {
 });
 
 // Start server
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log("Server running on port", port);
 });
+
 
 // get all skills
 app.get("/api/skills", (req, res) => {
