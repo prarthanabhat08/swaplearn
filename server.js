@@ -40,13 +40,15 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  port: process.env.DB_PORT,
 });
+
 
 // Test connection API
 app.get("/", (req, res) => {
-  res.send({ message: "Backend running successfully 🚀" });
+  res.send("Backend is running successfully 🚀");
 });
+
 
 // Get all users
 app.get("/api/users", (req, res) => {
